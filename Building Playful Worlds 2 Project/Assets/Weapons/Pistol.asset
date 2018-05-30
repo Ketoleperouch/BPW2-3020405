@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47e830af57d392143ab00b96cf06ff99, type: 3}
+  m_Name: Pistol
+  m_EditorClassIdentifier: 
+  weaponName: Pistol
+  fireRate: 0.12
+  semiAuto: 1
+  damage: 1.6
+  recoil: 2
+  accuracy: 0.95
+  range: 40
+  muzzleParticles: {fileID: 0}
+  impactParticles: {fileID: 1353000930237134, guid: 62fa1f2db4ee64341a72ff9af772c948,
+    type: 2}
+  shotSounds:
+  - {fileID: 8300000, guid: 94f1be6484ecaca46bd122606a44f4e2, type: 3}
+  - {fileID: 8300000, guid: 0b1d9b15abdfa3b439ee5ecfa796e404, type: 3}
+  - {fileID: 8300000, guid: bc6b1cb27f5e68f4b8d41434da6159c9, type: 3}
+  - {fileID: 8300000, guid: 66d9198d8f67b274b958440fc86df619, type: 3}
+  - {fileID: 8300000, guid: fe4f692a65c74f041adef77ba3ef4ea0, type: 3}
+  crosshair: {fileID: 21300000, guid: 51f19fbec99506b4e85fa392746348c2, type: 3}
+  totalAmmo: 6
+  currentAmmoInClip: 2
+  clipSize: 8
+  ID: 0
+  outOfAmmo: 0

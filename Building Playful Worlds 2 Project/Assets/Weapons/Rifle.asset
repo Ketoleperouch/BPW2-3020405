@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47e830af57d392143ab00b96cf06ff99, type: 3}
+  m_Name: Rifle
+  m_EditorClassIdentifier: 
+  weaponName: Rifle
+  fireRate: 0.12
+  semiAuto: 0
+  damage: 1.2
+  recoil: 1.6
+  accuracy: 0.98
+  range: 55
+  muzzleParticles: {fileID: 0}
+  impactParticles: {fileID: 1353000930237134, guid: 62fa1f2db4ee64341a72ff9af772c948,
+    type: 2}
+  shotSounds:
+  - {fileID: 8300000, guid: b236705441d60a64b98075561f41fd27, type: 3}
+  crosshair: {fileID: 21300000, guid: c572dacc6e55c8b468b39f2426df4ce0, type: 3}
+  totalAmmo: 96
+  currentAmmoInClip: 32
+  clipSize: 32
+  ID: 2
+  outOfAmmo: 0
