@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class WaypointSystem : MonoBehaviour {
@@ -7,16 +8,26 @@ public class WaypointSystem : MonoBehaviour {
     public GameObject marker;
     public Sprite onScreen;
     public Sprite offScreen;
+    public Text distanceIndicator;
+
+    public Transform currentWaypoint { get; set; }
+    public bool active { get; set; }
+    public bool disableZoom { get; private set; }
 
     private Vector2 originalSize;
     private PlayerController player;
-    private static WaypointSystem system;
+
+    public static WaypointSystem system;
 
     private void Start()
     {
         player = FindObjectOfType<PlayerController>();
         originalSize = marker.GetComponent<RectTransform>().sizeDelta;
         system = this;
+        if (!currentWaypoint)
+        {
+            currentWaypoint = waypoint;
+        }
     }
 
     private void LateUpdate()
@@ -24,34 +35,46 @@ public class WaypointSystem : MonoBehaviour {
         ShowMarkers();
     }
 
-    public static void SetWaypoint(Transform waypoint)
-    {
-        system.waypoint = waypoint;
-    }
-
     //For use through UnityEvents
-    public void SetWayPointNonStatic(Transform waypoint)
+    public void SetWaypoint(Transform waypoint)
     {
+        if (!waypoint)
+        {
+            active = false;
+            return;
+        }
+        active = true;
         system.waypoint = waypoint;
+        StartCoroutine(InitializeMarker(marker.GetComponent<RectTransform>()));
+    }
+    public void SetWaypoint(Vector3 position)
+    {
+        active = true;
+        currentWaypoint.position = position;
+        system.waypoint = currentWaypoint;
+        StartCoroutine(InitializeMarker(marker.GetComponent<RectTransform>()));
     }
 
     private void ShowMarkers()
     {
-        if (waypoint == null)
+        if (currentWaypoint == null || !active)
         {
             marker.SetActive(false);
             return;
         }
         else
         {
+            waypoint = currentWaypoint;
             marker.SetActive(true);
         }
         Vector3 screenPosition = Camera.main.WorldToScreenPoint(waypoint.transform.position);
 
         //Set marker size
         RectTransform markerTransform = marker.GetComponent<RectTransform>();
-        markerTransform.sizeDelta = originalSize * Mathf.Max(1, 3 - (Vector3.Distance(player.transform.position, waypoint.position) / 20));
-
+        if (!disableZoom)
+        {
+            markerTransform.sizeDelta = originalSize * MarkerSize;
+        }
         //Check if on screen or offscreen
         if (screenPosition.z > 0 && screenPosition.x > 0 && screenPosition.x < Screen.width && screenPosition.y > 0 && screenPosition.y < Screen.height)
         {
@@ -59,6 +82,7 @@ public class WaypointSystem : MonoBehaviour {
             marker.GetComponent<Image>().sprite = onScreen;
             markerTransform.rotation = Quaternion.identity;
             markerTransform.position = screenPosition;
+            distanceIndicator.text = (Mathf.Round(Vector3.Distance(player.transform.position, currentWaypoint.position))).ToString() + " m";
         }
         else
         {
@@ -109,7 +133,29 @@ public class WaypointSystem : MonoBehaviour {
             markerTransform.position = screenPosition;
             markerTransform.rotation = Quaternion.Euler(0, 0, relativeAngle * Mathf.Rad2Deg);
 
+            distanceIndicator.text = "";
         }
+    }
+
+    private float MarkerSize
+    {
+        get
+        {
+            return Mathf.Max(0.95f, 2 - (Vector3.Distance(player.transform.position, waypoint.position) / 20));
+        }
+    }
+
+    private IEnumerator InitializeMarker(RectTransform markerTransform)
+    {
+        float sizer = 0.02f;
+        disableZoom = true;
+        while (!Mathf.Approximately(markerTransform.sizeDelta.x, originalSize.x * MarkerSize))
+        {
+            markerTransform.sizeDelta = Vector2.Lerp(Vector2.one * 100, originalSize * MarkerSize, sizer);
+            sizer *= 1.2f;
+            yield return null;
+        }
+        disableZoom = false;
     }
 
 }

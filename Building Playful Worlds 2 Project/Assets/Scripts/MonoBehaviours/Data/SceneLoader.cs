@@ -14,8 +14,7 @@ public class SceneLoader : MonoBehaviour {
 
     private void Start()
     {
-        if (initialize || SceneManager.sceneCount == 1)
-            initialize = true;
+        if (initialize)
             StartCoroutine(Load(1));
     }
 

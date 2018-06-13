@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47e830af57d392143ab00b96cf06ff99, type: 3}
+  m_Name: Shotgun
+  m_EditorClassIdentifier: 
+  weaponName: Shotgun
+  fireRate: 0.8
+  semiAuto: 1
+  damage: 30
+  recoil: 8
+  accuracy: 0.6
+  range: 25
+  muzzleParticles: {fileID: 0}
+  impactParticles: {fileID: 1353000930237134, guid: 62fa1f2db4ee64341a72ff9af772c948,
+    type: 2}
+  shotSounds:
+  - {fileID: 8300000, guid: 433f6155bbb34ed45a3a1813a9319150, type: 3}
+  - {fileID: 8300000, guid: 516d8e4396f3c4e4dbfde6e25ae9f368, type: 3}
+  crosshair: {fileID: 21300000, guid: 9bdc8ac3e88adf34d8fbed19a7e34a4a, type: 3}
+  totalAmmo: 12
+  currentAmmoInClip: 4
+  clipSize: 4
+  ID: 1
+  outOfAmmo: 0

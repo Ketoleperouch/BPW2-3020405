@@ -11,6 +11,8 @@ ModelImporter:
     400004: station_Sidewalk_Wall
     2100000: station_wall1
     2100002: station_floor1
+    2100004: station_floor1.001
+    2100006: station_wall1.001
     2300000: station_Sidewalk_Floor
     2300002: station_Sidewalk_Wall
     3300000: station_Sidewalk_Floor

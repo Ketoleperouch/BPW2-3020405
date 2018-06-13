@@ -14,6 +14,8 @@ public class Footsteps : MonoBehaviour {
     public LayerMask groundLayers;
     public float volume = 0.25f;
 
+    [SerializeField] bool isScenic = false;
+
     private Animator anim;
 
     private void Start()
@@ -24,9 +26,10 @@ public class Footsteps : MonoBehaviour {
     public void Footstep(int foot) //foot 0 is right foot, foot 1 is left foot
     {
         //Check some conditions if Footstep() is actually possible.
-        if (anim.GetFloat("Speed") < .25)
+        if (!isScenic)
         {
-            return;
+            if (anim.GetFloat("Speed") < .25f)
+                return;
         }
 
         //Do a Raycast to get information about the material.

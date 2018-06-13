@@ -14,7 +14,7 @@ MonoBehaviour:
   weaponName: Pistol
   fireRate: 0.12
   semiAuto: 1
-  damage: 1.6
+  damage: 16
   recoil: 2
   accuracy: 0.95
   range: 40
@@ -28,8 +28,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 66d9198d8f67b274b958440fc86df619, type: 3}
   - {fileID: 8300000, guid: fe4f692a65c74f041adef77ba3ef4ea0, type: 3}
   crosshair: {fileID: 21300000, guid: 51f19fbec99506b4e85fa392746348c2, type: 3}
-  totalAmmo: 6
-  currentAmmoInClip: 2
+  totalAmmo: 24
+  currentAmmoInClip: 8
   clipSize: 8
   ID: 0
   outOfAmmo: 0

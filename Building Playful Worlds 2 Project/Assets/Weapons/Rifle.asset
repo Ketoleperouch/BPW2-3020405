@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Name: Rifle
   m_EditorClassIdentifier: 
   weaponName: Rifle
-  fireRate: 0.12
+  fireRate: 0.06
   semiAuto: 0
-  damage: 1.2
+  damage: 8
   recoil: 1.6
-  accuracy: 0.98
+  accuracy: 0.939
   range: 55
   muzzleParticles: {fileID: 0}
   impactParticles: {fileID: 1353000930237134, guid: 62fa1f2db4ee64341a72ff9af772c948,

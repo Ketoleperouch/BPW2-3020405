@@ -25,9 +25,11 @@ public class CutsceneController : MonoBehaviour {
     private int activeCamera = 0;
     private bool fading = false;
     private SceneLoader sceneLoader;
+    private float levelLoadTime;
 
     private void Start()
     {
+        levelLoadTime = Time.time;
         sceneLoader = FindObjectOfType<SceneLoader>();
         if (!sceneLoader)
         {
@@ -41,7 +43,7 @@ public class CutsceneController : MonoBehaviour {
     {
         for (int i = 0; i < events.Length; i++)
         {
-            if (Time.timeSinceLevelLoad - 2 >= events[i].timestamp && !events[i].done)
+            if (Time.time >= events[i].timestamp + levelLoadTime && !events[i].done)
             {
                 events[i].done = true;
                 events[i].sceneEvent.Invoke();
@@ -111,6 +113,22 @@ public class CutsceneController : MonoBehaviour {
     public void FadeOutMusic(float speed)
     {
         StartCoroutine(IFadeOutMusic(speed));
+    }
+
+    public void RotateCameraX(float value)
+    {
+        StartCoroutine(IRotateCameraX(value));
+    }
+
+    private IEnumerator IRotateCameraX(float value)
+    {
+        float track = 0;
+        while (!Mathf.Approximately(track, value))
+        {
+            transform.Rotate(Time.deltaTime * Mathf.Sign(value) * Mathf.Abs(value), 0, 0, Space.Self);
+            track = Mathf.MoveTowards(track, value, Time.deltaTime);
+            yield return null;
+        }
     }
 
     private IEnumerator IFade(float a, float speed)

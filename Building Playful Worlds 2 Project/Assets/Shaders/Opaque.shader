@@ -8,6 +8,9 @@
 		_BumpMap ("Normal Map", 2D) = "bump" {}
 		_OcclusionIntensity("Occlusion Intensity", Range(0.0, 1.0)) = 1.0
 		_Occlusion ("Occlusion", 2D) = "white" {}
+		_EmissionIntensity("Emission Intensity", Float) = 1.0
+		_Emission ("Emission", 2D) = "black" {}
+		_EmissionColor ("Emission Color", Color) = (0,0,0,1)
 
 		_Attenuation ("Attenuation", Range(0.0, 1.0)) = 0.75
 		_RimFalloff("Rimlight Falloff", Range (0.0, 20.0)) = 10.0
@@ -19,7 +22,7 @@
 
 		CGPROGRAM
 
-		#pragma surface surf Test fullforwardshadows
+		#pragma surface surf Test addshadow
 
 		struct Input
 		{
@@ -61,6 +64,9 @@
 		sampler2D _BumpMap;
 		float _OcclusionIntensity;
 		sampler2D _Occlusion;
+		float _EmissionIntensity;
+		sampler2D _Emission;
+		float4 _EmissionColor; 
 		float _RimFalloff;
 		float _RimIntensity;
 
@@ -79,7 +85,10 @@
 			o.Emission *= pow(occlusion, _OcclusionIntensity * 5);
 			//Albedo influence
 			o.Emission *= color.rgb * _Color * max(0, _RimIntensity);
-
+			//Emission maps
+			half4 emit = tex2D(_Emission, IN.uv_MainTex);
+			o.Emission += emit.rgb * _EmissionColor * _EmissionIntensity;
+			
 			o.Normal *= _BumpMapIntensity;
 		}
 

@@ -2,6 +2,7 @@
 //Mythic Act 2018 Niels Weber, added optimizations and tweaks for BPW2 (this game)
 
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -44,6 +45,7 @@ public sealed class PlayerController : MonoBehaviour {
         {
             fireDelays.Add(weapons[i].fireRate);
         }
+        StartCoroutine(StartText());
     }
 
     private void InitializeWeapons()
@@ -55,6 +57,10 @@ public sealed class PlayerController : MonoBehaviour {
             weapons[i].currentAmmoInClip = weapons[i].clipSize;
         }
         crosshair.sprite = equippedWeapon.crosshair;
+        if (noWeapon)
+        {
+            equippedWeapon = null;
+        }
     }
 
     private void OnApplicationFocus(bool focus)
@@ -145,6 +151,10 @@ public sealed class PlayerController : MonoBehaviour {
 
     private void Shoot()
     {
+        if (!equippedWeapon)
+        {
+            return;
+        }
         fireDelays[equippedWeapon.ID] = Time.time + equippedWeapon.fireRate;
         m_Animator.SetTrigger("Fire");
         AudioSource.PlayClipAtPoint(equippedWeapon.shotSounds[Random.Range(0, equippedWeapon.shotSounds.Length)], barrel.position);
@@ -168,6 +178,13 @@ public sealed class PlayerController : MonoBehaviour {
         if (Physics.Raycast(shotOrigin, Camera.main.transform.forward + shotInaccuracy, out hit, equippedWeapon.range, hitLayers, QueryTriggerInteraction.Ignore))
         {
             Instantiate(equippedWeapon.impactParticles, hit.point, Quaternion.identity);
+            Debug.Log(hit.collider.tag);
+            if (hit.collider.CompareTag("Enemy"))
+            {
+                
+                EnemyStats enemy = hit.collider.GetComponent<EnemyStats>();
+                enemy.TakeDamage(equippedWeapon.damage, hit.point);
+            }
         }
 
     }
@@ -183,7 +200,7 @@ public sealed class PlayerController : MonoBehaviour {
 #if UNITY_EDITOR
         Debug.DrawLine(transform.position + (Vector3.up * 0.1f), transform.position + (Vector3.up * 0.1f) + (Vector3.down * m_GroundCheckDistance));
 #endif
-        if (Physics.Raycast(transform.position + (Vector3.up * 0.1f), Vector3.down, out groundHit, m_GroundCheckDistance))
+        if (Physics.SphereCast(transform.position + (Vector3.up * 0.3f), 0.2f, Vector3.down, out groundHit, m_GroundCheckDistance))
         {
             m_GroundNormal = groundHit.normal;
             m_Grounded = true;
@@ -194,5 +211,16 @@ public sealed class PlayerController : MonoBehaviour {
             m_Grounded = false;
         }
         m_Animator.SetBool("Grounded", m_Grounded);
+    }
+
+    private IEnumerator StartText()
+    {
+        yield return new WaitForSeconds(1);
+        LogTextDirect.logText.LogText("Are you alright? That crash was rather rough.");
+        yield return new WaitForSeconds(3);
+        LogTextDirect.logText.LogText("Can you walk? Try moving to that spot over there.");
+        WaypointSystem.system.SetWaypoint(new Vector3(15, 6.5f, 54.4f));
+        yield return new WaitForSeconds(4);
+        LogTextDirect.logText.LogText("Use the WASD keys to move.                   ");
     }
 }
