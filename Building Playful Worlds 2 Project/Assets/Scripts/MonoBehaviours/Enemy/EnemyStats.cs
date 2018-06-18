@@ -11,16 +11,18 @@ public class EnemyStats : MonoBehaviour {
     public float attackRange = 10f;
     public float attackDamage = 5f;
     public float attackRate = 0.2f;
+
+    [Header("Detection")]
     [Range(0, 1)]
     public float aspect = SixteenByNine;
-
-    [Space(10)]
     [Range(2f, 10f)]
     public float frustumDistance = 4f;
     [Range(0, 1)]
     public float frustrumVisibility = 1f;
-    [Space(20)]
+
+    [Header("Effects")]
     public GameObject hitParticles;
+    public ParticleSystem shotImpactParticles;
 
     public void TakeDamage(float dmg, Vector3 point)
     {

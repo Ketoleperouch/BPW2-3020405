@@ -18,6 +18,7 @@ public sealed class PlayerController : MonoBehaviour {
     public float jumpForce = 3f;
 
     public Transform barrel;
+    public Transform targetable;
     public LayerMask hitLayers;
     public ParticleSystem shotMuzzles;
     public Image crosshair;

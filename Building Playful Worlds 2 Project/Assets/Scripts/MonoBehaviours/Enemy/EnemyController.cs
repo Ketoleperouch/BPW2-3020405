@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [DisallowMultipleComponent]
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyStats))]
-public class EnemyController : MonoBehaviour {
+public sealed class EnemyController : MonoBehaviour {
 
 	public enum State { Idle, Detect, Chase, Attack, LostTarget, Alarmed, Yielding};
     public State state = State.Idle;            //The current AI state
@@ -89,6 +89,7 @@ public class EnemyController : MonoBehaviour {
         m_Target = null;
         isHeadsup = false;
         agent.speed = 1;
+        agent.stoppingDistance = 1;
         if (Detection())
         {
             TransitionTo(State.Detect);
@@ -106,6 +107,7 @@ public class EnemyController : MonoBehaviour {
         stateColor = Color.yellow;
         agent.speed = 1;
         MoveTowardsTarget();
+        agent.stoppingDistance = 1;
         if (Detection())
         {
             if (CheckStateCountdown(validationTime + Vector3.Distance(m_Target.position, transform.position)))
@@ -122,7 +124,8 @@ public class EnemyController : MonoBehaviour {
     {
         //In the chase state, the enemy has a valid target and chases it until the enemy is in attack range.
         stateColor = Color.red;
-        agent.speed = 4;
+        agent.speed = 6;
+        agent.stoppingDistance = 3;
         MoveTowardsTarget();
         if (InAttackingRange() && Detection())
         {
@@ -144,6 +147,7 @@ public class EnemyController : MonoBehaviour {
         //In the attack state, the enemy attacks the target and checks if the target is still in attack range after the attack.
         stateColor = Color.black;
         agent.speed = 2;
+        agent.stoppingDistance = 4;
         if (!Detection() || !InAttackingRange())
         {
             TransitionTo(State.Chase);
@@ -160,6 +164,7 @@ public class EnemyController : MonoBehaviour {
         //In the lost target state, the enemy's target has left the enemy's line of sight for too long and the enemy goes to the last location where it has seen the target.
         stateColor = new Color(0.5f, 0.1f, 0);
         agent.speed = 3;
+        agent.stoppingDistance = 0.5f;
         MoveTowardsTarget();
         if (Detection())
         {
@@ -173,10 +178,11 @@ public class EnemyController : MonoBehaviour {
 
     private void Alarmed()
     {
-        //In the alarmed state, the enemy acts the same as in the idle state but will immediately detect enemies.
+        //In the alarmed state, the enemy acts the same as in the idle state but will immediately detect enemies and will not patrol.
         stateColor = new Color(1, 0.5f, 0);
         m_Target = null;
         agent.speed = 1;
+        agent.stoppingDistance = 1;
         if (Detection())
         {
             TransitionTo(State.Chase);
@@ -213,7 +219,7 @@ public class EnemyController : MonoBehaviour {
                     //The player is inside the frustum. Check if there is any object blocking the line of sight.
                     if (!Physics.Linecast(eyes.position, coll[i].ClosestPoint(eyes.position), out hit))
                     {
-                        m_Target = coll[i].transform;
+                        m_Target = coll[i].GetComponent<PlayerController>().targetable;
                         return true;
                     }
                 }
@@ -224,7 +230,7 @@ public class EnemyController : MonoBehaviour {
 
     private bool InAttackingRange()
     {
-        return Vector3.Distance(eyes.position, m_Target.position) < stats.attackRange;
+        return Vector3.Distance(transform.position, m_Target.position) < stats.attackRange;
     }
 
     private bool ReachedPosition()
@@ -243,7 +249,7 @@ public class EnemyController : MonoBehaviour {
     #region Actions
     private void MoveTowardsTarget()
     {
-        if (m_Target && agent.remainingDistance <= agent.stoppingDistance)
+        if (m_Target)
         {
             if (state == State.LostTarget)
             {
@@ -269,11 +275,14 @@ public class EnemyController : MonoBehaviour {
         {
             //Fire weapon: do a raycast from the barrel forward direction and check if the player is hit.
             RaycastHit hit = new RaycastHit();
-            /*if (Physics.Raycast(barrel.position, barrel.forward, out hit, stats.attackRange) && hit.collider.CompareTag(targetTag))
+            if (Physics.Raycast(barrel.position, barrel.forward, out hit, stats.attackRange) && hit.collider.CompareTag(targetTag))
             {
                 hit.collider.GetComponent<PlayerHealth>().TakeDamage(stats.attackDamage, hit.point);
-            }*/
-            FindObjectOfType<PlayerHealth>().TakeDamage(stats.attackDamage, hit.point);
+            }
+            stats.shotImpactParticles.Stop();
+            stats.shotImpactParticles.Play();
+            stats.shotImpactParticles.GetComponent<AudioSource>().Stop();
+            stats.shotImpactParticles.GetComponent<AudioSource>().Play();
             m_AttackTimer = Time.time + stats.attackRate;
         }
     }
@@ -289,6 +298,7 @@ public class EnemyController : MonoBehaviour {
     }
 
     #endregion
+
     private void TransitionTo(State toState)
     {
         if (!inTransition)

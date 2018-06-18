@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WaypointSystem : MonoBehaviour {
+public sealed class WaypointSystem : MonoBehaviour {
 
     public Transform waypoint;
     public GameObject marker;

@@ -126,6 +126,7 @@ ModelImporter:
     7400004: Space Pirate Idle HU
     7400006: Space Pirate Walk HU
     7400008: Space Pirate Run HU
+    7400010: Space Pirate Detect
     9500000: //RootNode
     13700000: spacePirate
     2186277476908879412: ImportLogs
@@ -302,6 +303,34 @@ ModelImporter:
       loopBlendOrientation: 1
       loopBlendPositionY: 1
       loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 0
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 1
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Space Pirate Detect
+      takeName: Armature|ArmatureAction
+      firstFrame: 240
+      lastFrame: 264
+      wrapMode: 0
+      orientationOffsetY: -4.4
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 0
       keepOriginalOrientation: 1
       keepOriginalPositionY: 0
       keepOriginalPositionXZ: 0

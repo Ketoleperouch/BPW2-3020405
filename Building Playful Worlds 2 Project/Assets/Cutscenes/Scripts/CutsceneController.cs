@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-public class CutsceneController : MonoBehaviour {
+public sealed class CutsceneController : MonoBehaviour {
 
     [System.Serializable]
     public class CutsceneEvent

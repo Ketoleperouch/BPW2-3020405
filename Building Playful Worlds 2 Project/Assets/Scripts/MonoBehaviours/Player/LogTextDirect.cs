@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 
-public class LogTextDirect : MonoBehaviour {
+public sealed class LogTextDirect : MonoBehaviour {
 
     public static LogTextDirect logText;
 
