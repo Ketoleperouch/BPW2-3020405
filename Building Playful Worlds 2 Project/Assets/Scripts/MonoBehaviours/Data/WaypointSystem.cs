@@ -36,23 +36,24 @@ public sealed class WaypointSystem : MonoBehaviour {
     }
 
     //For use through UnityEvents
-    public void SetWaypoint(Transform waypoint)
+    public void SetWaypoint(Transform newWaypoint)
     {
-        if (!waypoint)
-        {
-            active = false;
-            return;
-        }
         active = true;
-        system.waypoint = waypoint;
+        currentWaypoint.position = newWaypoint.position;
+        system.waypoint = currentWaypoint;
         StartCoroutine(InitializeMarker(marker.GetComponent<RectTransform>()));
     }
-    public void SetWaypoint(Vector3 position)
+    public void SetWaypointPosition(Vector3 position)
     {
         active = true;
         currentWaypoint.position = position;
         system.waypoint = currentWaypoint;
         StartCoroutine(InitializeMarker(marker.GetComponent<RectTransform>()));
+    }
+    public void UnsetWaypoint()
+    {
+        active = false;
+        system.waypoint = null;
     }
 
     private void ShowMarkers()

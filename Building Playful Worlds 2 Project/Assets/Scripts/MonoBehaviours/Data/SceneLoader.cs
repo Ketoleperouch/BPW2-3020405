@@ -7,6 +7,7 @@ public class SceneLoader : MonoBehaviour {
     public GameObject loader;
     public GameObject cam;
     public GameObject startLoader;
+    public CheckpointData data;
 
     [SerializeField] bool initialize = false;
 
@@ -16,6 +17,17 @@ public class SceneLoader : MonoBehaviour {
     {
         if (initialize)
             StartCoroutine(Load(1));
+        if (!data)
+        {
+            Debug.Log("New Data Instance created");
+            CheckpointData newCheckpointData = ScriptableObject.CreateInstance<CheckpointData>();
+            newCheckpointData.name = "Local " + System.DateTime.Now;
+            data = newCheckpointData;
+            if (initialize)
+            {
+                data.playerHealth = 100;
+            }
+        }
     }
 
     public void LoadScene(int buildIndex)
@@ -52,5 +64,13 @@ public class SceneLoader : MonoBehaviour {
         }
         cam.SetActive(false);
         executing = false;
+
+        //Load data from Checkpoint Data to Player.
+        PlayerHealth pData = FindObjectOfType<PlayerHealth>();
+        if (pData)
+        {
+            pData.health = data.playerHealth;
+            pData.healthBarFill.fillAmount = pData.health / 100;
+        }
     }
 }

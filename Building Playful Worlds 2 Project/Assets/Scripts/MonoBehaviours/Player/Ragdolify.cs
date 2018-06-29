@@ -1,38 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
-public class EnemyStats : MonoBehaviour {
-
-    private const float SixteenByNine = 0.5625F;
-    private const float StandardSquare = 0.5F;
-
-    public float health = 100;
-    public float viewRange = 40f;
-    public float viewSize = 2f;
-    public float attackRange = 10f;
-    public float attackDamage = 5f;
-    public float attackRate = 0.2f;
-
-    [Header("Detection")]
-    [Range(0, 1)]
-    public float aspect = SixteenByNine;
-    [Range(2f, 10f)]
-    public float frustumDistance = 4f;
-    [Range(0, 1)]
-    public float frustrumVisibility = 1f;
-
-    [Header("Effects")]
-    public GameObject hitParticles;
-    public AudioClip[] hitSounds;
-    public ParticleSystem shotImpactParticles;
-    public AudioClip[] shotSounds;
-
-    [Header("Ragdoll Settings")]
-    public Bone[] bones;
-    public bool forceDeath = false;
-
-    public EnemyController controller { get { return GetComponent<EnemyController>(); } }
-    public Rigidbody rb { get { return GetComponent<Rigidbody>(); } }
+public class Ragdolify : MonoBehaviour {
 
     [System.Serializable]
     public struct Bone
@@ -54,42 +22,22 @@ public class EnemyStats : MonoBehaviour {
         public bool unparent;
     };
 
+    public Bone[] bones;
+    public bool makeRagdoll = false;
+
+    public Rigidbody rb { get { return GetComponent<Rigidbody>(); } }
+
     private void Update()
     {
-        if (forceDeath)
+        if (makeRagdoll)
         {
-            forceDeath = false;
-            Die();
+            GetComponent<PlayerHealth>().TakeDamage(100, transform.position);
+            makeRagdoll = false;
         }
     }
 
-    public void TakeDamage(float dmg, Vector3 point, Transform attacker)
+    public void MakeRagdoll()
     {
-        if (!controller.target || (controller.state != EnemyController.State.Chase || controller.state != EnemyController.State.Attack))
-        {
-            controller.target = attacker;
-            controller.isHeadsup = true;
-            controller.TransitionTo(EnemyController.State.Chase);
-        }
-        if (dmg > 0)
-        {
-            health -= dmg;
-            AudioSource.PlayClipAtPoint(hitSounds[Random.Range(0, hitSounds.Length)], point, 0.5f);
-            Instantiate(hitParticles, point, Quaternion.identity);
-        }
-        if (health < 0)
-        {
-            Die();
-        }
-    }
-
-    private void Die()
-    {
-        controller.target.GetComponentInParent<PlayerController>().UpdateMusic();
-        health = 0;
-        Destroy(controller.animator);
-        Destroy(controller);
-        Destroy(GetComponent<CapsuleCollider>());
         rb.isKinematic = false;
         //Make Ragdoll
         for (int i = 0; i < bones.Length; i++)

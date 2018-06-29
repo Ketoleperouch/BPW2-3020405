@@ -14,16 +14,28 @@ public sealed class EnemyController : MonoBehaviour {
     public Transform barrel;                    //Reference to the enemy barrel
     public string targetTag = "Player";         //The tag that the enemy can detect
     public float validationTime = 4;            //The time that the enemy needs to validate a target once detected
+    public LayerMask detectLayers;              //Layers that are used in detection
+    [Range(0, 1)]
+    public float accuracy = 1f;                 //The accuracy of the enemy
 
     [Header("Patrol")]
     public List<Transform> patrolPoints;            //Waypoints through which the enemy will patrol
 
     public bool inTransition { get; private set; }
     public bool isHeadsup { get; set; }
+    /// <summary>
+    /// Returns true if the enemy is in the Attack, Lost Target, or Chase state.
+    /// </summary>
+    public bool isDangerous { get { return state == State.Attack || state == State.LostTarget || state == State.Chase && stats.health > 0; } }
+    /// <summary>
+    /// Returns true if the enemy is in the Alarmed, Lost Target, or Detect state.
+    /// </summary>
+    public bool suspicious { get { return state == State.Alarmed || state == State.LostTarget || state == State.Detect; } }
     public EnemyStats stats { get { return GetComponent<EnemyStats>(); } }
     public NavMeshAgent agent { get { return GetComponent<NavMeshAgent>(); } }
     public Color stateColor { get { return m_StateColor; } private set { m_StateColor = value; } }
     public Animator animator { get { return GetComponent<Animator>(); } }
+    public Transform target { get { return m_Target; } set { m_Target = value; } }
 
     private Color m_StateColor = Color.gray;    //The state color to define a certain state. For debugging purposes
     private float m_StateTimer;                 //Tracker for any required state timer
@@ -32,6 +44,7 @@ public sealed class EnemyController : MonoBehaviour {
     private Vector3 m_TargetLastSeenAt;         //The last position the enemy has seen its target before it disappeared out of sight
     private float m_AttackTimer;                //The timer that is used to delay attacks
     private int m_NextWaypoint;                 //The next patrol waypoint during patrol
+    private PlayerController player;            //Ref to player
 
     private void Start()
     {
@@ -39,6 +52,7 @@ public sealed class EnemyController : MonoBehaviour {
         {
             barrel = transform;
         }
+        player = FindObjectOfType<PlayerController>();
     }
 
     private void Update()
@@ -98,7 +112,7 @@ public sealed class EnemyController : MonoBehaviour {
         {
             Patrol();
         }
-        m_IKBodyWeight = Mathf.Lerp(m_IKBodyWeight, 0, Time.deltaTime * agent.speed);
+        LookAtTarget(0);
     }
 
     private void Detect()
@@ -106,11 +120,16 @@ public sealed class EnemyController : MonoBehaviour {
         //In the detect state, the enemy has detected someone else and is waiting to validate its alignment (ally or enemy).
         stateColor = Color.yellow;
         agent.speed = 1;
-        MoveTowardsTarget();
+        if (patrolPoints.Count > 0)
+        {
+            MoveTowardsTarget();
+        }
         agent.stoppingDistance = 1;
+        LookAtTarget(1);
         if (Detection())
         {
-            if (CheckStateCountdown(validationTime + Vector3.Distance(m_Target.position, transform.position)))
+            Debug.Log(Mathf.Min(validationTime * Vector3.Distance(eyes.position, target.position), validationTime));
+            if (CheckStateCountdown(Mathf.Min(validationTime * Vector3.Distance(eyes.position, target.position), validationTime)))
                 TransitionTo(State.Chase);
         }
         else
@@ -123,6 +142,8 @@ public sealed class EnemyController : MonoBehaviour {
     private void Chase()
     {
         //In the chase state, the enemy has a valid target and chases it until the enemy is in attack range.
+        if (!MusicController.music.hasTransitioned)
+            MusicController.music.SetSnapshot(MusicController.music.dangerSnapshot);
         stateColor = Color.red;
         agent.speed = 6;
         agent.stoppingDistance = 3;
@@ -135,7 +156,7 @@ public sealed class EnemyController : MonoBehaviour {
         {
             //Memorize target position.
             m_TargetLastSeenAt = m_Target.position;
-            if (CheckStateCountdown(4))
+            if (CheckStateCountdown(6))
             {
                 TransitionTo(State.LostTarget);
             }
@@ -146,17 +167,19 @@ public sealed class EnemyController : MonoBehaviour {
     {
         //In the attack state, the enemy attacks the target and checks if the target is still in attack range after the attack.
         stateColor = Color.black;
-        agent.speed = 2;
-        agent.stoppingDistance = 4;
+        agent.speed = 5;
+        agent.stoppingDistance = stats.attackRange;
+
         if (!Detection() || !InAttackingRange())
         {
+            MoveTowardsTarget();
             TransitionTo(State.Chase);
         }
         else
         {
+            agent.speed = 2;
             AttackAction();
         }
-        MoveTowardsTarget();
     }
 
     private void LostTarget()
@@ -166,26 +189,33 @@ public sealed class EnemyController : MonoBehaviour {
         agent.speed = 3;
         agent.stoppingDistance = 0.5f;
         MoveTowardsTarget();
+        LookAtTarget(0);
         if (Detection())
         {
             TransitionTo(State.Chase);
         }
         else if (CheckStateCountdown(5))
         {
+            if (target)
+                target.GetComponentInParent<PlayerController>().UpdateMusic();
             TransitionTo(State.Alarmed);
         }
     }
 
     private void Alarmed()
     {
-        //In the alarmed state, the enemy acts the same as in the idle state but will immediately detect enemies and will not patrol.
+        //In the alarmed state, the enemy acts the same as in the idle state but will detect enemies faster and will not patrol.
         stateColor = new Color(1, 0.5f, 0);
         m_Target = null;
         agent.speed = 1;
         agent.stoppingDistance = 1;
+        LookAtTarget(0);
         if (Detection())
         {
-            TransitionTo(State.Chase);
+            isHeadsup = true;
+            LookAtTarget(1);
+            if (CheckStateCountdown(validationTime / 2))
+                TransitionTo(State.Chase);
         }
         if (CheckStateCountdown(8))
         {
@@ -205,22 +235,26 @@ public sealed class EnemyController : MonoBehaviour {
     #region Decisions
     private bool Detection()
     {
-        RaycastHit hit = new RaycastHit();
-        Vector3 aspect = new Vector3(0, 1 - stats.aspect, stats.aspect) * stats.viewSize;
-        //Do several OverlapBox calls and check if the player is inside one of these.
-        for (float f = 0; f < stats.viewRange; f += 5)
+        //Optimizing Check so we don't do 5000 boxcasts every frame
+        if (Vector3.Distance(transform.position, player.transform.position) < stats.viewRange)
         {
-            Collider[] coll = Physics.OverlapBox(eyes.position + eyes.forward * f, new Vector3(5, f * aspect.y, f * aspect.z) / 2);
-            for (int i = 0; i < coll.Length; i++)
+            RaycastHit hit = new RaycastHit();
+            Vector3 aspect = new Vector3(0, 1 - stats.aspect, stats.aspect) * stats.viewSize;
+            //Do several OverlapBox calls and check if the player is inside one of these.
+            for (float f = 0; f < stats.viewRange; f += 5)
             {
-                if (coll[i].CompareTag(targetTag))
+                Collider[] coll = Physics.OverlapBox(eyes.position + eyes.forward * f, new Vector3(5, f * aspect.y, f * aspect.z) / 2);
+                for (int i = 0; i < coll.Length; i++)
                 {
-                    Debug.DrawLine(eyes.position, coll[i].ClosestPoint(eyes.position));
-                    //The player is inside the frustum. Check if there is any object blocking the line of sight.
-                    if (!Physics.Linecast(eyes.position, coll[i].ClosestPoint(eyes.position), out hit))
+                    if (coll[i].CompareTag(targetTag))
                     {
-                        m_Target = coll[i].GetComponent<PlayerController>().targetable;
-                        return true;
+                        Debug.DrawLine(eyes.position, coll[i].ClosestPoint(eyes.position));
+                        //The player is inside the frustum. Check if there is any object blocking the line of sight.
+                        if (!Physics.Linecast(eyes.position, coll[i].ClosestPoint(eyes.position), out hit, detectLayers))
+                        {
+                            m_Target = coll[i].GetComponent<PlayerController>().targetable;
+                            return true;
+                        }
                     }
                 }
             }
@@ -258,6 +292,12 @@ public sealed class EnemyController : MonoBehaviour {
             else
             {
                 agent.destination = m_Target.position;
+                if (agent.velocity.magnitude < 0.2f)
+                {
+                    //Turn towards target
+                    Vector3 targetXZ = new Vector3(target.position.x, transform.position.y, target.position.z);
+                    transform.LookAt(Vector3.Lerp(transform.position + transform.forward, targetXZ, Time.deltaTime));
+                }
             }
         }
     }
@@ -265,25 +305,50 @@ public sealed class EnemyController : MonoBehaviour {
     private void AttackAction()
     {
         //Take aim at the target
-        if (m_IKBodyWeight < 0.9f)
+        if (m_IKBodyWeight < 1)
         {
-            m_IKBodyWeight = Mathf.Lerp(m_IKBodyWeight, 1, Time.deltaTime * (agent.speed / 2));
-            return;
+            LookAtTarget(1);
         }
         //Check fire rate
         if (Time.time > m_AttackTimer)
         {
             //Fire weapon: do a raycast from the barrel forward direction and check if the player is hit.
             RaycastHit hit = new RaycastHit();
-            if (Physics.Raycast(barrel.position, barrel.forward, out hit, stats.attackRange) && hit.collider.CompareTag(targetTag))
+            Vector3 acc = Random.insideUnitSphere * (1 - accuracy);
+            Debug.DrawRay(barrel.position, (barrel.forward + acc) * stats.attackRange, Color.yellow);
+            if (Physics.SphereCast(barrel.position, 0.6f, barrel.forward + acc, out hit, stats.attackRange) && hit.collider.CompareTag(targetTag))
             {
+                Debug.Log("Hit");
                 hit.collider.GetComponent<PlayerHealth>().TakeDamage(stats.attackDamage, hit.point);
             }
             stats.shotImpactParticles.Stop();
             stats.shotImpactParticles.Play();
+            stats.shotImpactParticles.GetComponent<AudioSource>().clip = stats.shotSounds[Random.Range(0, stats.shotSounds.Length)];
             stats.shotImpactParticles.GetComponent<AudioSource>().Stop();
             stats.shotImpactParticles.GetComponent<AudioSource>().Play();
             m_AttackTimer = Time.time + stats.attackRate;
+        }
+        //Make other enemies that are in bound assist this enemy.
+        Collider[] enemies = Physics.OverlapSphere(barrel.position, 15);
+        foreach (Collider col in enemies)
+        {
+            EnemyController controller = col.GetComponent<EnemyController>();
+            if (controller && (!controller.isDangerous || controller.state == State.LostTarget))
+            {
+                Debug.Log(controller.name + " alerted.");
+                controller.target = target;
+                controller.TransitionTo(State.Chase);
+            }
+        }
+        //Make sure the enemy doesn't walk into the player all the time
+        agent.destination = transform.position;
+    }
+
+    private void LookAtTarget(float target)
+    {
+        if (m_IKBodyWeight < 0.9f)
+        {
+            m_IKBodyWeight = Mathf.Lerp(m_IKBodyWeight, target, Time.deltaTime * (agent.speed / 2));
         }
     }
 
@@ -299,7 +364,7 @@ public sealed class EnemyController : MonoBehaviour {
 
     #endregion
 
-    private void TransitionTo(State toState)
+    public void TransitionTo(State toState)
     {
         if (!inTransition)
         {
@@ -319,7 +384,14 @@ public sealed class EnemyController : MonoBehaviour {
 
     private void SetAnimatorValues()
     {
-        animator.SetFloat("Speed", agent.velocity.magnitude);
+        float speed = agent.velocity.magnitude;
+        if (animator.GetCurrentAnimatorStateInfo(0).IsTag("NoMove"))
+            speed = 0;
+        if (isDangerous)
+        {
+            isHeadsup = true;
+        }
+        animator.SetFloat("Speed", speed);
         animator.SetBool("Headsup", isHeadsup);
     }
 
@@ -330,7 +402,12 @@ public sealed class EnemyController : MonoBehaviour {
             return;
         }
         animator.SetLookAtPosition(m_Target.position);
-        animator.SetLookAtWeight(m_IKBodyWeight);
+        animator.SetLookAtWeight(m_IKBodyWeight, 0.8f, 0.6f);
+    }
+
+    private void OnDestroy()
+    {
+        Destroy(agent);
     }
 
 #if UNITY_EDITOR

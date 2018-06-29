@@ -1,6 +1,4 @@
 ﻿//Copyright:
-//Mythic Act 2018 Niels Weber, added optimizations and tweaks for BPW2 (this game)
-
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
@@ -25,7 +23,10 @@ public sealed class PlayerController : MonoBehaviour {
 
     public bool noWeapon = true;
 
+    public bool dead { get; set; }
+
     [SerializeField] private float m_GroundCheckDistance = 0.1f;
+    [SerializeField] bool start = true;
 
     private Animator m_Animator;
     private float m_Forward;
@@ -46,7 +47,8 @@ public sealed class PlayerController : MonoBehaviour {
         {
             fireDelays.Add(weapons[i].fireRate);
         }
-        StartCoroutine(StartText());
+        if (start)
+            StartCoroutine(StartText());
     }
 
     private void InitializeWeapons()
@@ -80,6 +82,10 @@ public sealed class PlayerController : MonoBehaviour {
 
     public void Move(Vector3 move, bool sprinting, bool walking)
     {
+        if (dead)
+        {
+            return;
+        }
         if (move.magnitude > 1f) move.Normalize();
         move = transform.InverseTransformDirection(move);
 
@@ -116,6 +122,10 @@ public sealed class PlayerController : MonoBehaviour {
 
     public void WeaponUp()
     {
+        if (dead)
+        {
+            return;
+        }
         bool weaponUp = (Input.GetMouseButton(1) || Input.GetMouseButton(0)) && !noWeapon;
         m_Animator.SetFloat("WeaponUp", weaponUp ? 1 : 0, 0.1f, Time.deltaTime);
     }
@@ -152,7 +162,7 @@ public sealed class PlayerController : MonoBehaviour {
 
     private void Shoot()
     {
-        if (!equippedWeapon)
+        if (!equippedWeapon || dead)
         {
             return;
         }
@@ -161,6 +171,7 @@ public sealed class PlayerController : MonoBehaviour {
         AudioSource.PlayClipAtPoint(equippedWeapon.shotSounds[Random.Range(0, equippedWeapon.shotSounds.Length)], barrel.position);
         shotMuzzles.Stop(true);
         shotMuzzles.Play(true);
+        
         //Get hit point and stuff
 
         RaycastHit hit;
@@ -179,15 +190,31 @@ public sealed class PlayerController : MonoBehaviour {
         if (Physics.Raycast(shotOrigin, Camera.main.transform.forward + shotInaccuracy, out hit, equippedWeapon.range, hitLayers, QueryTriggerInteraction.Ignore))
         {
             Instantiate(equippedWeapon.impactParticles, hit.point, Quaternion.identity);
-            Debug.Log(hit.collider.tag);
             if (hit.collider.CompareTag("Enemy"))
             {
                 
                 EnemyStats enemy = hit.collider.GetComponent<EnemyStats>();
-                enemy.TakeDamage(equippedWeapon.damage, hit.point);
+                enemy.TakeDamage(equippedWeapon.damage, hit.point, transform);
             }
         }
 
+        //Make sure to alarm idle enemies around. They shouldn't be deaf.
+        Collider[] enemies = Physics.OverlapSphere(barrel.position, 50, hitLayers);
+        foreach (Collider col in enemies)
+        {
+            EnemyController controller = col.GetComponent<EnemyController>();
+            if (controller && controller.state == EnemyController.State.Idle)
+            {
+                controller.target = targetable;
+                controller.TransitionTo(EnemyController.State.LostTarget);
+                return;
+            }
+            if (controller && controller.suspicious)
+            {
+                controller.target = targetable;
+                controller.TransitionTo(EnemyController.State.Chase);
+            }
+        }
     }
 
     public void Reload()
@@ -220,8 +247,29 @@ public sealed class PlayerController : MonoBehaviour {
         LogTextDirect.logText.LogText("Are you alright? That crash was rather rough.");
         yield return new WaitForSeconds(3);
         LogTextDirect.logText.LogText("Can you walk? Try moving to that spot over there.");
-        WaypointSystem.system.SetWaypoint(new Vector3(15, 6.5f, 54.4f));
-        yield return new WaitForSeconds(4);
-        LogTextDirect.logText.LogText("Use the WASD keys to move.                   ");
+        WaypointSystem.system.SetWaypointPosition(new Vector3(15, 6.5f, 54.4f));
+        MissionController.mission.SetActiveMissionTarget(WaypointSystem.system.currentWaypoint);
+        LogMissionTextDirect.logText.LogText("Walk to the indicated marker.");
+    }
+
+    public void UpdateMusic()
+    {
+        //Check if the player is in danger
+        EnemyController[] enemies = FindObjectsOfType<EnemyController>();
+        bool danger = false;
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i].target == targetable && enemies[i].isDangerous)
+            {
+                //Danger music!
+                danger = true;
+                MusicController.music.SetSnapshot(MusicController.music.dangerSnapshot);
+                break;
+            }
+        }
+        if (!danger)
+        {
+            MusicController.music.SetSnapshot(MusicController.music.ambienceSnapshot);
+        }
     }
 }
