@@ -42,6 +42,7 @@ public class MenuController : MonoBehaviour
         }
         if (starting)
         {
+            loader.data.playerHealth = 100;
             loader.LoadScene(index);
         }
         running = false;

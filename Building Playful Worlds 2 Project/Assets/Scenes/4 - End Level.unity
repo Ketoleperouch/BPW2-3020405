@@ -1371,6 +1371,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114458060619030290, guid: 2cbbfa7455ca83344a3231235976e3ae,
+        type: 2}
+      propertyPath: patrolPoints.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4520609900532708, guid: 2cbbfa7455ca83344a3231235976e3ae, type: 2}
       propertyPath: m_LocalPosition.x
       value: 12.48
@@ -1472,6 +1477,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114458060619030290, guid: 2cbbfa7455ca83344a3231235976e3ae,
+        type: 2}
+      propertyPath: patrolPoints.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4520609900532708, guid: 2cbbfa7455ca83344a3231235976e3ae, type: 2}
       propertyPath: m_LocalPosition.x
       value: 6.03
@@ -2019,6 +2029,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114458060619030290, guid: 2cbbfa7455ca83344a3231235976e3ae,
+        type: 2}
+      propertyPath: patrolPoints.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4520609900532708, guid: 2cbbfa7455ca83344a3231235976e3ae, type: 2}
       propertyPath: m_LocalPosition.x
       value: 10.4
@@ -7582,6 +7597,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114458060619030290, guid: 2cbbfa7455ca83344a3231235976e3ae,
+        type: 2}
+      propertyPath: patrolPoints.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4520609900532708, guid: 2cbbfa7455ca83344a3231235976e3ae, type: 2}
       propertyPath: m_LocalPosition.x
       value: 8.144356
