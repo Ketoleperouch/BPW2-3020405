@@ -1,19 +1,28 @@
 fileFormatVersion: 2
-guid: fb8cfdf66c5c98c4c9f30c26ae70d492
+guid: c1e0fb2fc22c4a34fa6693f5739c5a48
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
     100000: //RootNode
+    100002: int_entrance.000
+    100004: int_entrance.001
     400000: //RootNode
-    2100000: Floor
-    2100002: Tubes
-    2100004: Walls
-    2100006: Lamp
-    2100008: GrateDoor
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: int_entrance
-  externalObjects: {}
+    400002: int_entrance.000
+    400004: int_entrance.001
+    2100000: Floor2.001
+    2100002: Ceiling.001
+    2300000: int_entrance.000
+    2300002: int_entrance.001
+    3300000: int_entrance.000
+    3300002: int_entrance.001
+    4300000: int_entrance.000
+    4300002: int_entrance.001
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Floor2.001
+    second: {fileID: 2100000, guid: 6e5e62d91590ddf4c844fdb75e5cf3d3, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

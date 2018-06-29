@@ -23,7 +23,12 @@ ModelImporter:
     4300000: int_ceiling
     4300002: int_entrance.000
     4300004: int_entrance.002
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Floor2
+    second: {fileID: 2100000, guid: 6e5e62d91590ddf4c844fdb75e5cf3d3, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

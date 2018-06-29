@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerCameraInput : MonoBehaviour {
 
@@ -17,6 +18,7 @@ public class PlayerCameraInput : MonoBehaviour {
     private float m_OriginalFOV;
     private Camera m_Cam;
     private bool m_ZoomedIn = false;
+    private bool m_Hold = false;
 
     private void Start()
     {
@@ -27,9 +29,23 @@ public class PlayerCameraInput : MonoBehaviour {
         m_OriginalFOV = m_Cam.fieldOfView;
     }
 
+    public void Hold(float time)
+    {
+        StartCoroutine(HoldMovement(time));
+    }
+
     private void Update()
     {
+        if (m_Hold)
+        {
+            return;
+        }
         pivot.position = target.position + m_Offset;
+        if (m_Controller.dead)
+        {
+            m_Cam.fieldOfView = Mathf.SmoothDamp(m_Cam.fieldOfView, m_OriginalFOV, ref m_ZoomVelocity, .2f);
+            return;
+        }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             m_Controller.Jump();
@@ -62,6 +78,13 @@ public class PlayerCameraInput : MonoBehaviour {
 
     private void FixedUpdate()
     {
+        if (m_Hold)
+        {
+            Input.ResetInputAxes();
+            m_Controller.Move(Vector3.zero, false, false);
+            m_Controller.GetComponent<Animator>().SetFloat("Speed", 0);
+            return;
+        }
         float v = Input.GetAxis("Vertical");
         float h = Input.GetAxis("Horizontal");
         float r = Input.GetAxis("Mouse X");
@@ -80,6 +103,10 @@ public class PlayerCameraInput : MonoBehaviour {
 
     private void LateUpdate()
     {
+        if (m_Hold)
+        {
+            return;
+        }
         //Vertical camera movement
         float mouseX = (inverseVerticalAxis ? Input.GetAxis("Mouse Y") : -Input.GetAxis("Mouse Y")) * m_Controller.sensitivity * (m_ZoomedIn ? 0.5f : 1);
         m_XRotation += mouseX;
@@ -89,6 +116,13 @@ public class PlayerCameraInput : MonoBehaviour {
 
         Quaternion localRotation = Quaternion.Euler(m_XRotation, pivot.localEulerAngles.y, 0);
         pivot.localRotation = localRotation;
+    }
+
+    private IEnumerator HoldMovement(float time)
+    {
+        m_Hold = true;
+        yield return new WaitForSeconds(time);
+        m_Hold = false;
     }
 
 }

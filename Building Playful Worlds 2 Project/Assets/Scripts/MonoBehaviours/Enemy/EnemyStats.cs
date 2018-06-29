@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
+[DisallowMultipleComponent]
 public class EnemyStats : MonoBehaviour {
 
     private const float SixteenByNine = 0.5625F;

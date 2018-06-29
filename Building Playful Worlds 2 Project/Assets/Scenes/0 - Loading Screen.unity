@@ -849,4 +849,5 @@ MonoBehaviour:
   loader: {fileID: 534558663}
   cam: {fileID: 1864895647}
   startLoader: {fileID: 467030823}
+  data: {fileID: 0}
   initialize: 1

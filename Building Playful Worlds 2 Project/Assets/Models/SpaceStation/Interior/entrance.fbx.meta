@@ -1,0 +1,165 @@
+fileFormatVersion: 2
+guid: fb8cfdf66c5c98c4c9f30c26ae70d492
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: int_entrance
+    100004: int_entrance.001
+    100006: int_entrance.002
+    100008: int_entrance.003
+    100010: int_entrance.004
+    400000: //RootNode
+    400002: int_entrance
+    400004: int_entrance.001
+    400006: int_entrance.002
+    400008: int_entrance.003
+    400010: int_entrance.004
+    2100000: Floor
+    2100002: Tubes
+    2100004: Walls
+    2100006: Lamp
+    2100008: GrateDoor
+    2100010: Lamp.001
+    2100012: Walls.001
+    2100014: Tubes.001
+    2100016: Floor.001
+    2100018: GrateDoor.001
+    2300000: //RootNode
+    2300002: int_entrance
+    2300004: int_entrance.001
+    2300006: int_entrance.002
+    2300008: int_entrance.003
+    2300010: int_entrance.004
+    3300000: //RootNode
+    3300002: int_entrance
+    3300004: int_entrance.001
+    3300006: int_entrance.002
+    3300008: int_entrance.003
+    3300010: int_entrance.004
+    4300000: int_entrance
+    4300002: int_entrance.004
+    4300004: int_entrance.003
+    4300006: int_entrance.002
+    4300008: int_entrance.001
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Floor
+    second: {fileID: 2100000, guid: a2ff40edd3b424142bf15c6d171c6b59, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Floor.001
+    second: {fileID: 2100000, guid: a2ff40edd3b424142bf15c6d171c6b59, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GrateDoor
+    second: {fileID: 2100000, guid: dd793ecd0b5bf1240ad55f961de26579, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GrateDoor.001
+    second: {fileID: 2100000, guid: dd793ecd0b5bf1240ad55f961de26579, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lamp
+    second: {fileID: 2100000, guid: 140ff3bc7426eeb4296fabe48ef52f81, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lamp.001
+    second: {fileID: 2100000, guid: 140ff3bc7426eeb4296fabe48ef52f81, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tubes
+    second: {fileID: 2100000, guid: a02585445c314f44fbde97594acbc018, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tubes.001
+    second: {fileID: 2100000, guid: a02585445c314f44fbde97594acbc018, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

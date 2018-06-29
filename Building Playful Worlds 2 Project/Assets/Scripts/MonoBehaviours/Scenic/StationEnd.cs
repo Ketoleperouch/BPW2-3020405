@@ -64,7 +64,7 @@ public class StationEnd : MonoBehaviour {
 
     private IEnumerator SlowFadeToBlack()
     {
-        yield return new WaitForSeconds(7);
+        yield return new WaitForSeconds(9);
         while (!Mathf.Approximately(fader.alpha, 1))
         {
             fader.alpha = Mathf.MoveTowards(fader.alpha, 1, Time.deltaTime * 0.05f);
